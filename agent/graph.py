@@ -10,10 +10,14 @@ from agent.state import (
 )
 from agent.configuration import Configuration
 
-llm = ChatOllama(
-    model="aisingapore/Gemma-SEA-LION-v4-4B-VL:latest",
-    temperature=0,
-)
+DEFAULT_MODEL = "aisingapore/Qwen-SEA-LION-v4-32B-IT"
+
+def _llm(config):
+    cfg = (config or {}).get("configurable", {}) or {}
+    return ChatOllama(
+        model=cfg.get("model_name") or DEFAULT_MODEL,
+        temperature=cfg.get("temperature", 0),
+    )
 
 search_tool = TavilySearch(max_results=5, search_depth="advanced")
 
@@ -25,18 +29,14 @@ def search_node(state):
     sources = [r.get("url", "") for r in results]
     return {"documents": documents, "sources_gathered": sources}
 
-def answer_node(state):
+def answer_node(state, config):
     question = state.get("input", "")
     docs = state.get("documents", [])
     prompt = f"Use these docs to answer the question.\n\nDocs: {docs}\n\nQuestion: {question}"
-    reply = llm.invoke([HumanMessage(content=prompt)])
+    reply = _llm(config).invoke([HumanMessage(content=prompt)])
     return {"response": reply.content}
 
-#decide route function
 def decide_route(state):
-    # your routing logic; must return a node name (e.g., "search", "answer")
-    if "search" in state.get("input", "").lower():
-        return "search"
     return "answer"
 
 builder = StateGraph(OverallState, context_schema=Configuration)

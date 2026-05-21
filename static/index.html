@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>InotGrumpy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F2;
+    --bg-soft: #F3EFE5;
+    --ink: #1B1A17;
+    --ink-soft: #57534B;
+    --rule: #E6E0D2;
+    --accent: #1B1A17;
+  }
+  html, body { font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+  .serif { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; letter-spacing: -0.01em; }
+  .rule { border-color: var(--rule); }
+  .ink-soft { color: var(--ink-soft); }
+  .bg-soft { background: var(--bg-soft); }
+  .fade-in { animation: fade .35s ease-out both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .dot { animation: blink 1.4s infinite; }
+  .dot:nth-child(2) { animation-delay: .2s; }
+  .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100% { opacity: .15 } 40% { opacity: .9 } }
+  ::selection { background: #1B1A17; color: #FAF8F2; }
+  textarea, select, button, input { font-family: inherit; }
+  select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2357534B' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 0.6rem center; padding-right: 1.75rem; }
+</style>
+</head>
+<body class="min-h-screen">
+  <div class="mx-auto max-w-2xl px-6 pt-10 pb-40">
+
+    <!-- Header -->
+    <header class="mb-14 border-b rule pb-8">
+      <div class="flex items-start justify-between gap-6">
+        <div class="flex items-center gap-5">
+          <div aria-label="InotGrumpy"
+            class="h-[50px] w-[50px] rounded-full ring-1 ring-[var(--rule)] shrink-0 bg-no-repeat"
+            style="background-image: url('/avatar.jpeg'); background-size: 180%; background-position: 50% 22%;"></div>
+          <div>
+            <p class="ink-soft text-xs tracking-[0.2em] uppercase mb-3">◌ &nbsp; Field Agent</p>
+            <h1 class="serif text-[2.6rem] leading-[1.05] font-medium">
+              Meet <span class="italic">InotGrumpy</span>.<br/>
+              A patient little agent.
+            </h1>
+            <p class="ink-soft mt-4 text-sm leading-relaxed max-w-md">
+              Powered by SEA-LION via Ollama. Every question is answered with a Tavily web search first.
+            </p>
+          </div>
+        </div>
+        <a href="/agent/playground" class="ink-soft text-xs tracking-wider uppercase hover:text-[var(--ink)] whitespace-nowrap mt-1">
+          Playground →
+        </a>
+      </div>
+
+      <!-- Model picker -->
+      <div class="mt-8 flex items-center gap-3 text-sm">
+        <label for="model" class="ink-soft text-xs tracking-[0.18em] uppercase">Model</label>
+        <span class="ink-soft">✦</span>
+        <select id="model" class="bg-transparent border-0 border-b rule pb-1 focus:outline-none focus:border-[var(--ink)] text-sm">
+          <option>loading…</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- Thread -->
+    <main id="thread" class="space-y-10"></main>
+
+    <!-- Empty state -->
+    <div id="empty" class="text-center py-16">
+      <p class="serif italic text-2xl ink-soft">A question, gently posed.</p>
+      <p class="ink-soft text-xs tracking-[0.2em] uppercase mt-6">◇ &nbsp; Begin below</p>
+    </div>
+  </div>
+
+  <!-- Composer -->
+  <form id="form" class="fixed inset-x-0 bottom-0 border-t rule" style="background: rgba(250,248,242,0.92); backdrop-filter: blur(8px);">
+    <div class="mx-auto max-w-2xl px-6 py-5">
+      <div class="flex items-end gap-4 border-b rule pb-3 focus-within:border-[var(--ink)] transition-colors">
+        <textarea id="input" rows="1" placeholder="Type your question…"
+          class="flex-1 resize-none bg-transparent text-[var(--ink)] placeholder:text-[var(--ink-soft)]/60 focus:outline-none text-base leading-relaxed"></textarea>
+        <button id="send" type="submit"
+          class="serif italic text-base hover:underline underline-offset-4 disabled:opacity-30 whitespace-nowrap">
+          Send →
+        </button>
+      </div>
+      <p class="ink-soft mt-3 text-[10px] tracking-[0.2em] uppercase flex items-center gap-3">
+        <span>Enter to send</span><span class="opacity-40">·</span><span>Shift+Enter for newline</span>
+        <span class="ml-auto opacity-60 normal-case tracking-normal serif italic">© Sagelion Capital Ltd · Crafted with care 🌒</span>
+      </p>
+    </div>
+  </form>
+
+<script>
+const thread = document.getElementById('thread');
+const empty = document.getElementById('empty');
+const form = document.getElementById('form');
+const input = document.getElementById('input');
+const send = document.getElementById('send');
+const modelSelect = document.getElementById('model');
+
+async function loadModels() {
+  try {
+    const res = await fetch('/models');
+    const { default: def, models } = await res.json();
+    modelSelect.innerHTML = '';
+    const installed = models.filter(m => m.installed);
+    const available = models.filter(m => !m.installed);
+
+    const addGroup = (label, list, disabled = false) => {
+      if (!list.length) return;
+      const g = document.createElement('optgroup');
+      g.label = label;
+      list.forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id;
+        o.textContent = m.label;
+        if (disabled) o.disabled = true;
+        if (m.id === def) o.selected = true;
+        g.appendChild(o);
+      });
+      modelSelect.appendChild(g);
+    };
+    addGroup('Installed', installed);
+    addGroup('Not pulled', available, true);
+
+    if (!installed.length) {
+      const o = document.createElement('option');
+      o.textContent = 'no SEA-LION models pulled';
+      o.disabled = true; o.selected = true;
+      modelSelect.prepend(o);
+    }
+  } catch (e) {
+    modelSelect.innerHTML = '<option disabled selected>model list unavailable</option>';
+  }
+}
+loadModels();
+
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 220) + 'px';
+});
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+});
+
+function userTurn(text) {
+  const el = document.createElement('section');
+  el.className = 'fade-in';
+  el.innerHTML = `
+    <p class="ink-soft text-[10px] tracking-[0.22em] uppercase mb-2">You asked</p>
+    <p class="serif text-xl leading-snug"></p>
+  `;
+  el.querySelector('p.serif').textContent = text;
+  return el;
+}
+
+function agentTurn() {
+  const el = document.createElement('section');
+  el.className = 'fade-in border-l-2 rule pl-5';
+  el.innerHTML = `
+    <p class="ink-soft text-[10px] tracking-[0.22em] uppercase mb-3">
+      <span class="model-tag"></span>
+    </p>
+    <div class="answer text-[15px] leading-[1.75] whitespace-pre-wrap"></div>
+    <div class="sources mt-5 hidden">
+      <p class="ink-soft text-[10px] tracking-[0.22em] uppercase mb-2">◇ &nbsp; Sources</p>
+      <ul class="space-y-1.5"></ul>
+    </div>
+  `;
+  return el;
+}
+
+function thinking(label) {
+  const el = document.createElement('section');
+  el.className = 'fade-in border-l-2 rule pl-5 flex items-center gap-2 ink-soft';
+  el.innerHTML = `
+    <span class="text-[10px] tracking-[0.22em] uppercase">Thinking</span>
+    <span class="dot">·</span><span class="dot">·</span><span class="dot">·</span>
+    <span class="ml-3 text-[10px] tracking-[0.18em] uppercase opacity-60">${label || ''}</span>
+  `;
+  return el;
+}
+
+async function ask(q) {
+  empty.style.display = 'none';
+
+  const model = modelSelect.value;
+  const modelLabel = modelSelect.options[modelSelect.selectedIndex]?.textContent || model;
+
+  thread.appendChild(userTurn(q));
+  const pending = thinking(modelLabel);
+  thread.appendChild(pending);
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+  try {
+    const res = await fetch('/agent/invoke', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        input: { input: q },
+        config: { configurable: { model_name: model } },
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const state = data.output || {};
+    pending.remove();
+
+    const turn = agentTurn();
+    turn.querySelector('.model-tag').textContent = `✦ ${modelLabel}`;
+    turn.querySelector('.answer').textContent = state.response || '(no response)';
+
+    const sources = (state.sources_gathered || []).filter(Boolean);
+    if (sources.length) {
+      const box = turn.querySelector('.sources');
+      const ul = box.querySelector('ul');
+      sources.forEach(u => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="${u}" target="_blank" rel="noopener" class="text-xs underline underline-offset-4 decoration-[var(--rule)] hover:decoration-[var(--ink)] break-all">${u}</a>`;
+        ul.appendChild(li);
+      });
+      box.classList.remove('hidden');
+    }
+    thread.appendChild(turn);
+  } catch (err) {
+    pending.remove();
+    const el = document.createElement('section');
+    el.className = 'fade-in border-l-2 border-red-300 pl-5 text-sm text-red-800';
+    el.textContent = `Error: ${err.message}`;
+    thread.appendChild(el);
+  } finally {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  input.style.height = 'auto';
+  send.disabled = true;
+  try { await ask(q); } finally { send.disabled = false; input.focus(); }
+});
+
+input.focus();
+</script>
+</body>
+</html>
