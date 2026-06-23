@@ -19,8 +19,8 @@ DEFAULT_MODEL = "aisingapore/Qwen-SEA-LION-v4-32B-IT"
 MAX_RESEARCH_LOOPS = 3
 
 # Models served via BytePlus Ark (OpenAI-compatible, cloud)
-ARK_MODELS = {"glm-4-7-251222"}
-ARK_BASE_URL = "https://ark.ap-southeast.bytepluses.com/api/v3"
+ARK_MODELS = {"glm-4-7"}
+ARK_BASE_URL = "https://ark.ap-southeast-1.bytepluses.com/api/v3"
 
 
 def _llm(config):

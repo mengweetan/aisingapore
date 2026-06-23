@@ -15,15 +15,22 @@ All surfaces import the same compiled `graph` from the `agent` package, so chang
 ## Commands
 
 ```bash
+# Create venv with Python 3.11 (required — langgraph-cli[inmem] rejects 3.9/3.10)
+python3.11 -m venv .venv
+source .venv/bin/activate
+
 # Install (editable install picks up pyproject.toml deps)
 pip install -e .
 pip install -r requirements.txt   # adds langgraph-cli[inmem] for Studio
+pip install fastapi uvicorn langserve httpx  # required for server.py
 
 # Run LangGraph Studio / dev server (reads langgraph.json)
-langgraph dev
+# IMPORTANT: use .venv/bin/langgraph, not the system langgraph — macOS may have
+# an older install at /usr/local/bin/langgraph that still targets Python 3.9
+.venv/bin/langgraph dev
 
 # Run the FastAPI/LangServe server + custom UI
-uvicorn server:app --reload
+.venv/bin/uvicorn server:app --reload
 
 # Lint
 ruff check .

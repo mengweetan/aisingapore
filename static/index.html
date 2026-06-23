@@ -1,110 +1,712 @@
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>InotGrumpy</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>InotGrumpy // Field Agent</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #FAF8F2;
-    --bg-soft: #F3EFE5;
-    --ink: #1B1A17;
-    --ink-soft: #57534B;
-    --rule: #E6E0D2;
-    --accent: #1B1A17;
+    --navy:   #080B1A;
+    --navy2:  #0D1230;
+    --navy3:  #131840;
+    --cyan:   #00E5FF;
+    --cyan2:  #00B8CC;
+    --pink:   #FF2D9B;
+    --orange: #FF6B1A;
+    --white:  #E8F4FF;
+    --muted:  #5A6A8A;
+    --border: rgba(0,229,255,0.15);
   }
-  html, body { font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: var(--bg); }
-  .serif { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; letter-spacing: -0.01em; }
-  .rule { border-color: var(--rule); }
-  .ink-soft { color: var(--ink-soft); }
-  .bg-soft { background: var(--bg-soft); }
-  .fade-in { animation: fade .35s ease-out both; }
-  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .dot { animation: blink 1.4s infinite; }
-  .dot:nth-child(2) { animation-delay: .2s; }
-  .dot:nth-child(3) { animation-delay: .4s; }
-  @keyframes blink { 0%,80%,100% { opacity: .15 } 40% { opacity: .9 } }
-  ::selection { background: #1B1A17; color: #FAF8F2; }
-  textarea, select, button, input { font-family: inherit; }
-  select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2357534B' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 0.6rem center; padding-right: 1.75rem; }
+ 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+ 
+  /* Starfield background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 65% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 40%, rgba(0,229,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 65%, rgba(255,45,155,0.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+ 
+  /* Ambient glow orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 10% 20%, rgba(0,229,255,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 300px at 90% 80%, rgba(255,45,155,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 400px at 50% 50%, rgba(255,107,26,0.02) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+ 
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px 200px;
+  }
+ 
+  /* ── ORBITRON display font ── */
+  .orbitron { font-family: 'Orbitron', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+ 
+  /* ── HEADER ── */
+  header {
+    padding: 40px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+ 
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+ 
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+ 
+  /* Avatar with animated glow ring */
+  .avatar-wrap {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    flex-shrink: 0;
+  }
+  .avatar-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--cyan), var(--pink), var(--orange), var(--cyan));
+    animation: spin 4s linear infinite;
+    z-index: 0;
+  }
+  .avatar-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,0.2) 0%, transparent 70%);
+    animation: pulse-ring 2s ease-in-out infinite;
+    z-index: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+  .avatar-img {
+    position: relative;
+    z-index: 1;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 22%;
+    border: 3px solid var(--navy);
+    margin: 4px;
+  }
+  /* Fallback if no img */
+  .avatar-fallback {
+    position: relative;
+    z-index: 1;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--navy2);
+    border: 3px solid var(--navy);
+    margin: 4px;
+    background-image: url('/avatar.jpeg');
+    background-size: 180%;
+    background-position: 50% 22%;
+  }
+ 
+  .header-text { flex: 1; }
+ 
+  .agent-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .agent-badge::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+    animation: blink-dot 1.5s ease-in-out infinite;
+  }
+  @keyframes blink-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+ 
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+  h1 .accent-cyan { color: var(--cyan); }
+  h1 .accent-pink { color: var(--pink); }
+ 
+  .tagline {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 420px;
+  }
+  .tagline strong { color: var(--cyan); font-weight: 500; }
+ 
+  .playground-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .playground-link:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0,229,255,0.2);
+  }
+ 
+  /* Model picker */
+  .model-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .model-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .model-sep { color: var(--cyan); opacity: 0.5; font-size: 12px; }
+ 
+  select {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 4px 24px 4px 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300E5FF' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--cyan); }
+  select option { background: var(--navy2); color: var(--white); }
+  select optgroup { color: var(--muted); }
+ 
+  /* ── THREAD ── */
+  #thread { display: flex; flex-direction: column; gap: 36px; }
+ 
+  /* ── EMPTY STATE ── */
+  #empty {
+    text-align: center;
+    padding: 80px 0;
+  }
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(0,229,255,0.4));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .empty-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .empty-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.5;
+  }
+ 
+  /* ── USER TURN ── */
+  .user-turn {
+    animation: fade-up 0.3s ease-out both;
+  }
+  .user-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .user-label::before {
+    content: '▶';
+    font-size: 7px;
+  }
+  .user-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.4;
+  }
+ 
+  /* ── PROGRESS BLOCK ── */
+  .progress-block {
+    animation: fade-up 0.3s ease-out both;
+  }
+  .progress-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .progress-header::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    border: 1px solid var(--cyan);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+ 
+  .mission-log {
+    border-left: 1px solid rgba(0,229,255,0.2);
+    padding-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+ 
+  .log-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+  .log-line::before { content: '//'; opacity: 0.4; flex-shrink: 0; }
+  .log-line.active { color: var(--white); }
+  .log-line.active::before { content: '>>'; color: var(--cyan); opacity: 1; }
+  .log-line.done::before { content: '✓'; color: var(--cyan); opacity: 0.7; }
+ 
+  .query-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+    padding-left: 24px;
+  }
+  .query-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: rgba(0,229,255,0.07);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 3px;
+    padding: 2px 8px;
+    color: var(--cyan2);
+    letter-spacing: 0.03em;
+  }
+ 
+  .gap-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--orange);
+    padding-left: 24px;
+    border-left: 2px solid var(--orange);
+    margin: 4px 0 4px 16px;
+    opacity: 0.85;
+  }
+ 
+  /* ── ANSWER BLOCK ── */
+  .answer-block {
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 8px;
+    background: rgba(13,18,48,0.6);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    animation: fade-up 0.4s ease-out both;
+  }
+  .answer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(0,229,255,0.1);
+    background: rgba(0,229,255,0.04);
+  }
+  .answer-model-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .answer-model-tag::before {
+    content: '✦';
+    color: var(--pink);
+  }
+  .answer-body {
+    padding: 20px;
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--white);
+    white-space: pre-wrap;
+  }
+  .sources-section {
+    padding: 12px 20px 16px;
+    border-top: 1px solid rgba(0,229,255,0.08);
+  }
+  .sources-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .source-link {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    word-break: break-all;
+    padding: 2px 0;
+    transition: color 0.15s;
+  }
+  .source-link:hover { color: var(--cyan); }
+ 
+  /* ── COMPOSER ── */
+  #composer {
+    position: fixed;
+    inset-x: 0;
+    bottom: 0;
+    z-index: 100;
+    background: rgba(8,11,26,0.92);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+  }
+  #composer::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), var(--pink), transparent);
+    opacity: 0.6;
+  }
+ 
+  .composer-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 16px 24px 20px;
+  }
+ 
+  .composer-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    background: var(--navy2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .composer-box:focus-within {
+    border-color: rgba(0,229,255,0.4);
+    box-shadow: 0 0 24px rgba(0,229,255,0.08), inset 0 0 24px rgba(0,229,255,0.03);
+  }
+ 
+  textarea {
+    flex: 1;
+    resize: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 24px;
+    max-height: 180px;
+  }
+  textarea::placeholder { color: var(--muted); opacity: 0.6; }
+ 
+  #send-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--navy);
+    background: var(--cyan);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  #send-btn:hover {
+    background: var(--white);
+    box-shadow: 0 0 20px rgba(0,229,255,0.4);
+  }
+  #send-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+ 
+  .composer-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.5;
+  }
+  .composer-hint .dot { opacity: 0.3; }
+ 
+  /* ── ANIMATIONS ── */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+ 
+  ::selection { background: rgba(0,229,255,0.3); color: var(--white); }
+  /* ── SPLASH SCREEN ── */
+  #splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s ease-out;
+  }
+  #splash.fade-out { opacity: 0; pointer-events: none; }
+  #splash-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #splash::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+    pointer-events: none;
+  }
+  #splash-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 1;
+  }
+  #splash-skip {
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+    z-index: 2;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 6px 14px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.4s, color 0.2s, border-color 0.2s;
+  }
+  #splash-skip.visible { opacity: 1; }
+  #splash-skip:hover { color: var(--cyan); border-color: var(--cyan); }
+  #splash-flash {
+    position: absolute;
+    inset: 0;
+    background: var(--cyan);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 0.08s ease-in;
+  }
+  #main-content { opacity: 0; transition: opacity 0.6s ease-in; }
+  #main-content.visible { opacity: 1; }
+ 
 </style>
 </head>
-<body class="min-h-screen">
-  <div class="mx-auto max-w-2xl px-6 pt-10 pb-40">
-
-    <!-- Header -->
-    <header class="mb-14 border-b rule pb-8">
-      <div class="flex items-start justify-between gap-6">
-        <div class="flex items-center gap-5">
-          <div aria-label="InotGrumpy"
-            class="h-[50px] w-[50px] rounded-full ring-1 ring-[var(--rule)] shrink-0 bg-no-repeat"
-            style="background-image: url('/avatar.jpeg'); background-size: 180%; background-position: 50% 22%;"></div>
-          <div>
-            <p class="ink-soft text-xs tracking-[0.2em] uppercase mb-3">◌ &nbsp; Field Agent</p>
-            <h1 class="serif text-[2.6rem] leading-[1.05] font-medium">
-              Meet <span class="italic">InotGrumpy</span>.<br/>
-              A patient little agent.
-            </h1>
-            <p class="ink-soft mt-4 text-sm leading-relaxed max-w-md">
-              Powered by SEA-LION via Ollama. Every question is answered with a Tavily web search first.
-            </p>
-          </div>
+<body>
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <video id="splash-video" src="/static/KKK.mp4" autoplay muted playsinline></video>
+  <div id="splash-scanlines"></div>
+  <div id="splash-flash"></div>
+  <button id="splash-skip">SKIP ▶</button>
+</div>
+ 
+<div id="main-content">
+<div class="page">
+ 
+  <!-- HEADER -->
+  <header>
+    <div class="header-top">
+      <div class="header-left">
+        <div class="avatar-wrap">
+          <div class="avatar-fallback"></div>
         </div>
-        <a href="/agent/playground" class="ink-soft text-xs tracking-wider uppercase hover:text-[var(--ink)] whitespace-nowrap mt-1">
-          Playground →
-        </a>
+        <div class="header-text">
+          <div class="agent-badge">INOTGRUMPY &nbsp;//&nbsp; FIELD AGENT 001 &nbsp;//&nbsp; SINGAPORE</div>
+          <h1>
+            <span class="accent-cyan">SEARCH.</span>
+            <span class="accent-pink"> REFLECT.</span><br>
+            <span style="color:var(--orange)">DOMINATE.</span>
+          </h1>
+          <p class="tagline">
+            Powered by <strong>SEA-LION</strong> · Hunts the web, reflects on gaps,
+            loops until the answer is bulletproof.
+          </p>
+        </div>
       </div>
-
-      <!-- Model picker -->
-      <div class="mt-8 flex items-center gap-3 text-sm">
-        <label for="model" class="ink-soft text-xs tracking-[0.18em] uppercase">Model</label>
-        <span class="ink-soft">✦</span>
-        <select id="model" class="bg-transparent border-0 border-b rule pb-1 focus:outline-none focus:border-[var(--ink)] text-sm">
-          <option>loading…</option>
-        </select>
+      <a href="/agent/playground" class="playground-link">API Playground ↗</a>
+    </div>
+ 
+    <!-- Model picker -->
+    <div class="model-row">
+      <span class="model-label">Model</span>
+      <span class="model-sep">◈</span>
+      <select id="model"><option>loading…</option></select>
+    </div>
+  </header>
+ 
+  <!-- THREAD -->
+  <main id="thread"></main>
+ 
+  <!-- EMPTY STATE -->
+  <div id="empty">
+    <div class="empty-icon">🚀</div>
+    <p class="empty-title">Ready for deployment</p>
+    <p class="empty-sub">// Launch a query below</p>
+  </div>
+ 
+</div>
+</div><!-- /main-content -->
+ 
+<!-- COMPOSER -->
+<div id="composer">
+  <div class="composer-inner">
+    <form id="form">
+      <div class="composer-box">
+        <textarea id="input" rows="1" placeholder="Launch a query…"></textarea>
+        <button id="send-btn" type="submit">LAUNCH ▶</button>
       </div>
-    </header>
-
-    <!-- Thread -->
-    <main id="thread" class="space-y-10"></main>
-
-    <!-- Empty state -->
-    <div id="empty" class="text-center py-16">
-      <p class="serif italic text-2xl ink-soft">A question, gently posed.</p>
-      <p class="ink-soft text-xs tracking-[0.2em] uppercase mt-6">◇ &nbsp; Begin below</p>
+    </form>
+    <div class="composer-hint">
+      <span>Enter to send</span>
+      <span class="dot">·</span>
+      <span>Shift+Enter for newline</span>
+      <span class="dot" style="margin-left:auto">·</span>
+      <span>© Sagelion Capital Ltd</span>
     </div>
   </div>
-
-  <!-- Composer -->
-  <form id="form" class="fixed inset-x-0 bottom-0 border-t rule" style="background: rgba(250,248,242,0.92); backdrop-filter: blur(8px);">
-    <div class="mx-auto max-w-2xl px-6 py-5">
-      <div class="flex items-end gap-4 border-b rule pb-3 focus-within:border-[var(--ink)] transition-colors">
-        <textarea id="input" rows="1" placeholder="Type your question…"
-          class="flex-1 resize-none bg-transparent text-[var(--ink)] placeholder:text-[var(--ink-soft)]/60 focus:outline-none text-base leading-relaxed"></textarea>
-        <button id="send" type="submit"
-          class="serif italic text-base hover:underline underline-offset-4 disabled:opacity-30 whitespace-nowrap">
-          Send →
-        </button>
-      </div>
-      <p class="ink-soft mt-3 text-[10px] tracking-[0.2em] uppercase flex items-center gap-3">
-        <span>Enter to send</span><span class="opacity-40">·</span><span>Shift+Enter for newline</span>
-        <span class="ml-auto opacity-60 normal-case tracking-normal serif italic">© Sagelion Capital Ltd · Crafted with care 🌒</span>
-      </p>
-    </div>
-  </form>
-
+</div>
+ 
 <script>
-const thread = document.getElementById('thread');
-const empty = document.getElementById('empty');
-const form = document.getElementById('form');
-const input = document.getElementById('input');
-const send = document.getElementById('send');
+const thread      = document.getElementById('thread');
+const empty       = document.getElementById('empty');
+const form        = document.getElementById('form');
+const input       = document.getElementById('input');
+const sendBtn     = document.getElementById('send-btn');
 const modelSelect = document.getElementById('model');
-
+ 
+// ── Model loader ──────────────────────────────────────────────────────────────
 async function loadModels() {
   try {
     const res = await fetch('/models');
@@ -112,7 +714,6 @@ async function loadModels() {
     modelSelect.innerHTML = '';
     const installed = models.filter(m => m.installed);
     const available = models.filter(m => !m.installed);
-
     const addGroup = (label, list, disabled = false) => {
       if (!list.length) return;
       const g = document.createElement('optgroup');
@@ -127,130 +728,248 @@ async function loadModels() {
       });
       modelSelect.appendChild(g);
     };
-    addGroup('Installed', installed);
+    addGroup('Available', installed);
     addGroup('Not pulled', available, true);
-
     if (!installed.length) {
       const o = document.createElement('option');
-      o.textContent = 'no SEA-LION models pulled';
+      o.textContent = 'no models available';
       o.disabled = true; o.selected = true;
       modelSelect.prepend(o);
     }
-  } catch (e) {
-    modelSelect.innerHTML = '<option disabled selected>model list unavailable</option>';
+  } catch {
+    modelSelect.innerHTML = '<option disabled selected>unavailable</option>';
   }
 }
 loadModels();
-
+ 
+// ── Textarea auto-resize ──────────────────────────────────────────────────────
 input.addEventListener('input', () => {
   input.style.height = 'auto';
-  input.style.height = Math.min(input.scrollHeight, 220) + 'px';
+  input.style.height = Math.min(input.scrollHeight, 180) + 'px';
 });
-input.addEventListener('keydown', (e) => {
+input.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
 });
-
-function userTurn(text) {
-  const el = document.createElement('section');
-  el.className = 'fade-in';
-  el.innerHTML = `
-    <p class="ink-soft text-[10px] tracking-[0.22em] uppercase mb-2">You asked</p>
-    <p class="serif text-xl leading-snug"></p>
-  `;
-  el.querySelector('p.serif').textContent = text;
+ 
+// ── DOM builders ──────────────────────────────────────────────────────────────
+function makeUserTurn(text) {
+  const el = document.createElement('div');
+  el.className = 'user-turn';
+  el.innerHTML = `<div class="user-label">You asked</div><div class="user-text"></div>`;
+  el.querySelector('.user-text').textContent = text;
   return el;
 }
-
-function agentTurn() {
-  const el = document.createElement('section');
-  el.className = 'fade-in border-l-2 rule pl-5';
+ 
+function makeProgressBlock(modelLabel) {
+  const id = 'log-' + Date.now();
+  const el = document.createElement('div');
+  el.className = 'progress-block';
   el.innerHTML = `
-    <p class="ink-soft text-[10px] tracking-[0.22em] uppercase mb-3">
-      <span class="model-tag"></span>
-    </p>
-    <div class="answer text-[15px] leading-[1.75] whitespace-pre-wrap"></div>
-    <div class="sources mt-5 hidden">
-      <p class="ink-soft text-[10px] tracking-[0.22em] uppercase mb-2">◇ &nbsp; Sources</p>
-      <ul class="space-y-1.5"></ul>
+    <div class="progress-header">${modelLabel} · MISSION IN PROGRESS</div>
+    <div class="mission-log" id="${id}"></div>
+  `;
+  el._logId = id;
+  return el;
+}
+ 
+function addLogLine(log, text, state = 'active') {
+  const el = document.createElement('div');
+  el.className = `log-line ${state}`;
+  el.textContent = text;
+  log.appendChild(el);
+  scroll();
+  return el;
+}
+ 
+function addQueryPills(log, queries) {
+  const wrap = document.createElement('div');
+  wrap.className = 'query-pills';
+  queries.forEach(q => {
+    const pill = document.createElement('span');
+    pill.className = 'query-pill';
+    pill.textContent = q;
+    wrap.appendChild(pill);
+  });
+  log.appendChild(wrap);
+  scroll();
+}
+ 
+function addGapLine(log, gap) {
+  const el = document.createElement('div');
+  el.className = 'gap-line';
+  el.textContent = `GAP DETECTED → ${gap}`;
+  log.appendChild(el);
+  scroll();
+}
+ 
+function makeAnswerBlock(modelLabel, responseText, sources) {
+  const el = document.createElement('div');
+  el.className = 'answer-block';
+  el.innerHTML = `
+    <div class="answer-header">
+      <div class="answer-model-tag">${modelLabel} · RESPONSE</div>
     </div>
+    <div class="answer-body"></div>
+    ${sources && sources.length ? `
+    <div class="sources-section">
+      <div class="sources-label">// Sources</div>
+      <div class="sources-list"></div>
+    </div>` : ''}
   `;
+  el.querySelector('.answer-body').textContent = responseText;
+  if (sources && sources.length) {
+    const list = el.querySelector('.sources-list');
+    [...new Set(sources)].filter(Boolean).forEach(u => {
+      const a = document.createElement('a');
+      a.className = 'source-link';
+      a.href = u; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = u;
+      list.appendChild(a);
+    });
+  }
   return el;
 }
-
-function thinking(label) {
-  const el = document.createElement('section');
-  el.className = 'fade-in border-l-2 rule pl-5 flex items-center gap-2 ink-soft';
-  el.innerHTML = `
-    <span class="text-[10px] tracking-[0.22em] uppercase">Thinking</span>
-    <span class="dot">·</span><span class="dot">·</span><span class="dot">·</span>
-    <span class="ml-3 text-[10px] tracking-[0.18em] uppercase opacity-60">${label || ''}</span>
-  `;
-  return el;
+ 
+function scroll() {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
-
+ 
+// ── Main ask() ────────────────────────────────────────────────────────────────
 async function ask(q) {
   empty.style.display = 'none';
-
-  const model = modelSelect.value;
+  const model      = modelSelect.value;
   const modelLabel = modelSelect.options[modelSelect.selectedIndex]?.textContent || model;
-
-  thread.appendChild(userTurn(q));
-  const pending = thinking(modelLabel);
-  thread.appendChild(pending);
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
+ 
+  thread.appendChild(makeUserTurn(q));
+ 
+  const progressBlock = makeProgressBlock(modelLabel);
+  thread.appendChild(progressBlock);
+  const log = document.getElementById(progressBlock._logId);
+  let lastLine = null;
+  let allSources = [];
+ 
+  scroll();
+ 
   try {
-    const res = await fetch('/agent/invoke', {
+    const res = await fetch('/stream', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        input: { input: q },
+        input:  { input: q },
         config: { configurable: { model_name: model } },
       }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const state = data.output || {};
-    pending.remove();
-
-    const turn = agentTurn();
-    turn.querySelector('.model-tag').textContent = `✦ ${modelLabel}`;
-    turn.querySelector('.answer').textContent = state.response || '(no response)';
-
-    const sources = (state.sources_gathered || []).filter(Boolean);
-    if (sources.length) {
-      const box = turn.querySelector('.sources');
-      const ul = box.querySelector('ul');
-      sources.forEach(u => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="${u}" target="_blank" rel="noopener" class="text-xs underline underline-offset-4 decoration-[var(--rule)] hover:decoration-[var(--ink)] break-all">${u}</a>`;
-        ul.appendChild(li);
-      });
-      box.classList.remove('hidden');
+ 
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let   buffer  = '';
+ 
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+ 
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let evt;
+        try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+ 
+        if (evt.type === 'status') {
+          if (lastLine) { lastLine.classList.remove('active'); lastLine.classList.add('done'); }
+          lastLine = addLogLine(log, evt.message, 'active');
+        }
+        else if (evt.type === 'queries') {
+          addQueryPills(log, evt.queries);
+        }
+        else if (evt.type === 'sources') {
+          allSources = [...new Set([...allSources, ...evt.sources])];
+          if (evt.sources.length)
+            addLogLine(log, `${evt.sources.length} source(s) gathered`, 'done');
+        }
+        else if (evt.type === 'gap') {
+          addGapLine(log, evt.knowledge_gap);
+        }
+        else if (evt.type === 'answer') {
+          if (lastLine) { lastLine.classList.remove('active'); lastLine.classList.add('done'); }
+          // Update progress header to done
+          const ph = progressBlock.querySelector('.progress-header');
+          if (ph) {
+            ph.style.setProperty('--spin', 'none');
+            ph.innerHTML = `<span style="color:var(--cyan);margin-right:8px">✓</span>${modelLabel} · MISSION COMPLETE`;
+            ph.style.color = 'var(--cyan)';
+            const spinner = ph.querySelector('::before');
+          }
+          const finalSources = [...new Set([...allSources, ...(evt.sources || [])])];
+          thread.appendChild(makeAnswerBlock(modelLabel, evt.response, finalSources));
+          scroll();
+        }
+        else if (evt.type === 'error') {
+          addLogLine(log, `ERROR: ${evt.message}`, '');
+        }
+      }
     }
-    thread.appendChild(turn);
   } catch (err) {
-    pending.remove();
-    const el = document.createElement('section');
-    el.className = 'fade-in border-l-2 border-red-300 pl-5 text-sm text-red-800';
-    el.textContent = `Error: ${err.message}`;
+    const el = document.createElement('div');
+    el.style.cssText = 'color:#ff4444;font-family:monospace;font-size:13px;padding:12px;border:1px solid rgba(255,68,68,0.3);border-radius:6px;margin-top:8px;';
+    el.textContent = `ERROR: ${err.message}`;
     thread.appendChild(el);
   } finally {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    scroll();
   }
 }
-
-form.addEventListener('submit', async (e) => {
+ 
+// ── Form submit ───────────────────────────────────────────────────────────────
+form.addEventListener('submit', async e => {
   e.preventDefault();
   const q = input.value.trim();
   if (!q) return;
   input.value = '';
   input.style.height = 'auto';
-  send.disabled = true;
-  try { await ask(q); } finally { send.disabled = false; input.focus(); }
+  sendBtn.disabled = true;
+  try { await ask(q); } finally { sendBtn.disabled = false; input.focus(); }
 });
-
+ 
 input.focus();
+ 
+// ── Splash screen ─────────────────────────────────────────────────────────────
+(function() {
+  const splash    = document.getElementById('splash');
+  const video     = document.getElementById('splash-video');
+  const skipBtn   = document.getElementById('splash-skip');
+  const flash     = document.getElementById('splash-flash');
+  const mainContent = document.getElementById('main-content');
+ 
+  function dismiss() {
+    // Brief cyan flash
+    flash.style.opacity = '0.15';
+    setTimeout(() => {
+      flash.style.opacity = '0';
+      splash.classList.add('fade-out');
+      mainContent.classList.add('visible');
+      setTimeout(() => { splash.style.display = 'none'; }, 900);
+    }, 80);
+  }
+ 
+  // Show skip button after 2 seconds
+  setTimeout(() => { skipBtn.classList.add('visible'); }, 2000);
+ 
+  // Auto-dismiss after 6.2s (slight buffer after 6s video)
+  setTimeout(dismiss, 6200);
+ 
+  // Skip on button click
+  skipBtn.addEventListener('click', dismiss);
+ 
+  // Also dismiss when video ends (handles shorter durations)
+  video.addEventListener('ended', dismiss);
+ 
+  // If video fails to load, dismiss immediately
+  video.addEventListener('error', dismiss);
+})();
+ 
 </script>
 </body>
 </html>
+ 

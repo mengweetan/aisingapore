@@ -6,7 +6,7 @@ import operator
 class OverallState(TypedDict, total=False):
     input: str
     response: str
-    documents: list[str]
+    documents: Annotated[list[str], operator.add]
     messages: list
     query_list: list[str]
     search_query: list[str]
