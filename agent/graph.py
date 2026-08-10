@@ -101,7 +101,7 @@ def generate_queries(state: OverallState, config) -> dict:
 # ---------------------------------------------------------------------------
 # Node: web_search  (queries run in parallel)
 # ---------------------------------------------------------------------------
-def web_search(state: OverallState, config) -> dict:
+async def web_search(state: OverallState, config) -> dict:
     write = get_stream_writer()
     queries = state.get("query_list", []) or [state.get("input", "")]
     tool = _search_tool(config)
@@ -131,16 +131,10 @@ def web_search(state: OverallState, config) -> dict:
         return await asyncio.gather(*[_search_one(q) for q in queries])
 
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # We're inside an async context (uvicorn) — create a new loop in a thread
-            import concurrent.futures
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                results = pool.submit(asyncio.run, _run_all()).result()
-        else:
-            results = loop.run_until_complete(_run_all())
+        results = await _run_all()
     except Exception as e:
         results = [([f"[Search error: {e}]"], [])]
+
 
     all_docs: list[str] = []
     all_sources: list[str] = []
