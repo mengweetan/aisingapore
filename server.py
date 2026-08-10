@@ -30,10 +30,12 @@ SEA_LION_CATALOG = [
     ("aisingapore/Llama-SEA-LION-v3.5-70B-R",  "Llama-SEA-LION v3.5 · 70B · Reasoning"),
     ("aisingapore/Llama-SEA-LION-v3.5-8B-R",   "Llama-SEA-LION v3.5 · 8B · Reasoning"),
     ("glm-4-7-251222", "GLM-4.7 · BytePlus Ark ☁"),
+    ("moonshot-v1-8k", "Moonshot v1 · 8K ☁"),
+    ("qwen-max", "Qwen-Max · Alibaba DashScope ☁"),
 ]
 
 # Cloud models are always "installed" (no local pull needed)
-CLOUD_MODELS = {"glm-4-7-251222"}
+CLOUD_MODELS = {"glm-4-7-251222", "moonshot-v1-8k", "qwen-max"}
 
 
 @app.get("/")

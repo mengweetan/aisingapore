@@ -18,22 +18,36 @@ from agent.configuration import Configuration
 DEFAULT_MODEL = "aisingapore/Qwen-SEA-LION-v4-32B-IT"
 MAX_RESEARCH_LOOPS = 3
 
-# Models served via BytePlus Ark (OpenAI-compatible, cloud)
-ARK_MODELS = {"glm-4-7-251222"}
-ARK_BASE_URL = "https://ark.ap-southeast.bytepluses.com/api/v3"
-
-
+# Models served via OpenAI-compatible cloud providers
+CLOUD_MODELS = {
+    "glm-4-7-251222": {
+        "base_url": "https://ark.ap-southeast.bytepluses.com/api/v3",
+        "api_key_env": "ARK_API_KEY",
+    },
+    "moonshot-v1-8k": {
+        "base_url": "https://api.moonshot.cn/v1",
+        "api_key_env": "MOONSHOT_API_KEY",
+    },
+    "qwen-max": {
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "api_key_env": "DASHSCOPE_API_KEY",
+    },
+}
+# Backwards-compatible aliases
+ARK_MODELS = set(CLOUD_MODELS.keys())
 def _llm(config):
     cfg = (config or {}).get("configurable", {}) or {}
     model = cfg.get("model_name") or DEFAULT_MODEL
     temperature = cfg.get("temperature", 0)
-    if model in ARK_MODELS:
+    if model in CLOUD_MODELS:
+        provider = CLOUD_MODELS[model]
         return ChatOpenAI(
             model=model,
             temperature=temperature,
-            base_url=ARK_BASE_URL,
-            api_key=os.environ.get("ARK_API_KEY"),
+            base_url=provider["base_url"],
+            api_key=os.environ.get(provider["api_key_env"]),
         )
+    return ChatOllama(model=model, temperature=temperature)
     return ChatOllama(model=model, temperature=temperature)
 
 
