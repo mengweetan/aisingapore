@@ -20,6 +20,10 @@ MAX_RESEARCH_LOOPS = 3
 
 # Models served via OpenAI-compatible cloud providers
 CLOUD_MODELS = {
+    "aisingapore/Gemma-SEA-LION-v4-27B-IT": {
+        "base_url": "https://api.sea-lion.ai/v1",
+        "api_key_env": "SEALION_API_KEY",
+    },
         "dola-seed-2-1-turbo-260628": {
         "base_url": "https://ark.ap-southeast.bytepluses.com/api/v3",
         "api_key_env": "ARK_API_KEY",

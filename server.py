@@ -36,7 +36,7 @@ SEA_LION_CATALOG = [
 ]
 
 # Cloud models are always "installed" (no local pull needed)
-CLOUD_MODELS = {"dola-seed-2-1-turbo-260628", "seed-2-0-lite-260228", "glm-4-7-251222", "moonshot-v1-8k", "qwen-max"}
+CLOUD_MODELS = {"aisingapore/Gemma-SEA-LION-v4-27B-IT", "dola-seed-2-1-turbo-260628", "seed-2-0-lite-260228", "glm-4-7-251222", "moonshot-v1-8k", "qwen-max"}
 
 
 @app.get("/")
