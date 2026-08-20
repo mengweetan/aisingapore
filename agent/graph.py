@@ -15,11 +15,19 @@ from agent.state import (
 )
 from agent.configuration import Configuration
 
-DEFAULT_MODEL = "aisingapore/Qwen-SEA-LION-v4-32B-IT"
+DEFAULT_MODEL = "aisingapore/Gemma-SEA-LION-v4-27B-IT"
 MAX_RESEARCH_LOOPS = 3
 
 # Models served via OpenAI-compatible cloud providers
 CLOUD_MODELS = {
+        "dola-seed-2-1-turbo-260628": {
+        "base_url": "https://ark.ap-southeast.bytepluses.com/api/v3",
+        "api_key_env": "ARK_API_KEY",
+    },
+    "seed-2-0-lite-260228": {
+        "base_url": "https://ark.ap-southeast.bytepluses.com/api/v3",
+        "api_key_env": "ARK_API_KEY",
+    },
     "glm-4-7-251222": {
         "base_url": "https://ark.ap-southeast.bytepluses.com/api/v3",
         "api_key_env": "ARK_API_KEY",

@@ -11,7 +11,17 @@ from fastapi.staticfiles import StaticFiles
 from langserve import add_routes
 from agent.graph import graph, DEFAULT_MODEL
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 add_routes(app, graph, path="/agent", config_keys=["configurable"])
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -20,22 +30,13 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
 
 SEA_LION_CATALOG = [
-    ("aisingapore/Apertus-SEA-LION-v4-8B-IT",  "Apertus-SEA-LION v4 · 8B · IT"),
-    ("aisingapore/Gemma-SEA-LION-v4-27B-IT",   "Gemma-SEA-LION v4 · 27B · IT"),
-    ("aisingapore/Gemma-SEA-LION-v4-27B-VL",   "Gemma-SEA-LION v4 · 27B · VL"),
-    ("aisingapore/Gemma-SEA-LION-v4-4B-VL",    "Gemma-SEA-LION v4 · 4B · VL"),
-    ("aisingapore/Qwen-SEA-LION-v4-32B-IT",    "Qwen-SEA-LION v4 · 32B · IT"),
-    ("aisingapore/Qwen-SEA-LION-v4-8B-VL",     "Qwen-SEA-LION v4 · 8B · VL"),
-    ("aisingapore/Qwen-SEA-LION-v4-4B-VL",     "Qwen-SEA-LION v4 · 4B · VL"),
-    ("aisingapore/Llama-SEA-LION-v3.5-70B-R",  "Llama-SEA-LION v3.5 · 70B · Reasoning"),
-    ("aisingapore/Llama-SEA-LION-v3.5-8B-R",   "Llama-SEA-LION v3.5 · 8B · Reasoning"),
-    ("glm-4-7-251222", "GLM-4.7 · BytePlus Ark ☁"),
-    ("moonshot-v1-8k", "Moonshot v1 · 8K ☁"),
-    ("qwen-max", "Qwen-Max · Alibaba DashScope ☁"),
+    ("aisingapore/Gemma-SEA-LION-v4-27B-IT", "Gemma-SEA-LION v4 · 27B · IT"),
+    ("dola-seed-2-1-turbo-260628", "Deepseek/Seed 2.1 Turbo · BytePlus Ark ☁"),
+    ("seed-2-0-lite-260228", "Deepseek/Seed 2.0 Lite · BytePlus Ark ☁")
 ]
 
 # Cloud models are always "installed" (no local pull needed)
-CLOUD_MODELS = {"glm-4-7-251222", "moonshot-v1-8k", "qwen-max"}
+CLOUD_MODELS = {"dola-seed-2-1-turbo-260628", "seed-2-0-lite-260228", "glm-4-7-251222", "moonshot-v1-8k", "qwen-max"}
 
 
 @app.get("/")
@@ -66,7 +67,7 @@ async def list_models():
         {
             "id": tag,
             "label": label,
-            "installed": tag in installed or tag in CLOUD_MODELS,
+            "installed": True,
         }
         for tag, label in SEA_LION_CATALOG
     ]

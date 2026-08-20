@@ -650,12 +650,12 @@
             <span style="color:var(--orange)">DOMINATE.</span>
           </h1>
           <p class="tagline">
-            Powered by <strong>SEA-LION</strong> · Hunts the web, reflects on gaps,
+            Powered by <strong>SEA-LION</strong> and <strong>Deepseek</strong> models · Hunts the web, reflects on gaps,
             loops until the answer is bulletproof.
           </p>
         </div>
       </div>
-      <a href="/agent/playground" class="playground-link">API Playground ↗</a>
+      <!-- API Playground link removed -->
     </div>
  
     <!-- Model picker -->
@@ -709,7 +709,7 @@ const modelSelect = document.getElementById('model');
 // ── Model loader ──────────────────────────────────────────────────────────────
 async function loadModels() {
   try {
-    const res = await fetch('/models');
+    const res = await fetch('/aiSingapore/models');
     const { default: def, models } = await res.json();
     modelSelect.innerHTML = '';
     const installed = models.filter(m => m.installed);
@@ -736,7 +736,7 @@ async function loadModels() {
       o.disabled = true; o.selected = true;
       modelSelect.prepend(o);
     }
-  } catch {
+  } catch(e) { console.error('Model fetch failed:', e);
     modelSelect.innerHTML = '<option disabled selected>unavailable</option>';
   }
 }
@@ -851,7 +851,7 @@ async function ask(q) {
   scroll();
  
   try {
-    const res = await fetch('/stream', {
+    const res = await fetch('/aiSingapore/stream', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -875,7 +875,7 @@ async function ask(q) {
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue;
         let evt;
-        try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+        try { evt = JSON.parse(line.slice(6)); } catch(e) { console.error('Model fetch failed:', e); continue; }
  
         if (evt.type === 'status') {
           if (lastLine) { lastLine.classList.remove('active'); lastLine.classList.add('done'); }
